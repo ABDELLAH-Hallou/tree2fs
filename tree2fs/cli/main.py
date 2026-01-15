@@ -3,6 +3,8 @@
 import sys
 import argparse
 from pathlib import Path
+
+from tree2fs.parser.json_parser import JsonParser
 from ..parser import TreeParser
 from ..builder import FilesystemBuilder
 from ..exceptions import TreeParseError, FilesystemBuildError
@@ -39,6 +41,12 @@ Tree file format:
         help='Path to tree file'
     )
     parser.add_argument(
+        '--format', '-f',
+        choices=['txt', 'json'],
+        default='txt',
+        help='Input file format (default: txt)'
+    )
+    parser.add_argument(
         '--base-dir',
         type=str,
         default='.',
@@ -67,17 +75,18 @@ Tree file format:
     
     args = parser.parse_args()
     
+    tree_file_path = Path(args.tree_file) # Define this early
+
     try:
-        # Parse tree file
-        tree_parser = TreeParser()
-        tree_file_path = Path(args.tree_file)
-        
-        if args.verbose:
-            print(f"📖 Parsing tree file: {tree_file_path}")
-        
-        root, root_name = tree_parser.build_tree(
-            tree_file_path
-        )
+        if args.format == 'json':
+            # Now tree_file_path is safe to use here
+            json_parser = JsonParser()
+            root, root_name = json_parser.build_tree(tree_file_path)
+        else:
+            if args.verbose:
+                print(f"📖 Parsing tree file: {tree_file_path}")
+            parser = TreeParser()
+            root, root_name = parser.build_tree(tree_file_path)
         if args.base_dir in [".", ""]:
             base_path = Path.cwd()
         else:

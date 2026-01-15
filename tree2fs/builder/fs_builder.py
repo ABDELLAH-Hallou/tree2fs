@@ -50,16 +50,14 @@ class FilesystemBuilder:
             raise FilesystemBuildError(f"Failed to create directory {path}: {e}")
     
     def _create_file(self, path: Path, node: Node) -> None:
-        """Create a file.
-        
-        Args:
-            path: Full path to create
-            node: Node containing metadata
-        """
+        """Create a file with content from node.data.comment."""
         try:
             if not self.dry_run:
                 path.parent.mkdir(parents=True, exist_ok=True)
-                path.touch(exist_ok=True)
+                # MODIFIED: Instead of path.touch(), we write the content
+                with open(path, 'w', encoding='utf-8') as f:
+                    if node.data.comment:
+                        f.write(node.data.comment)
             
             self.created_files.add(str(path))
             
@@ -67,7 +65,9 @@ class FilesystemBuilder:
                 action = "[DRY RUN] Would create" if self.dry_run else "Created"
                 print(f"{action} file: {path}")
                 if node.data.comment:
-                    print(f"  → Comment: {node.data.comment}")
+                    # Show a preview of content in verbose mode
+                    preview = (node.data.comment[:30] + '..') if len(node.data.comment) > 30 else node.data.comment
+                    print(f"   → Content: {preview}")
         
         except OSError as e:
             raise FilesystemBuildError(f"Failed to create file {path}: {e}")
