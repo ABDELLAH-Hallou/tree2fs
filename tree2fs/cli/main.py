@@ -4,7 +4,7 @@ import sys
 import argparse
 from pathlib import Path
 
-from tree2fs.parser.json_parser import JsonParser
+from tree2fs.parser.json_parser import JSONParser
 from ..parser import TreeParser
 from ..builder import FilesystemBuilder
 from ..exceptions import TreeParseError, FilesystemBuildError
@@ -80,7 +80,7 @@ Tree file format:
     try:
         if args.format == 'json':
             # Now tree_file_path is safe to use here
-            json_parser = JsonParser()
+            json_parser = JSONParser()
             root, root_name = json_parser.build_tree(tree_file_path)
         else:
             if args.verbose:
