@@ -22,6 +22,9 @@ tree2fs tree.txt --base-dir /path/to/project
 
 # Include root directory in creation
 tree2fs tree.txt --no-skip-root
+
+# NEW: JSON format with name: content pairs
+tree2fs input.json --format json
 ```
 
 ### Python API Usage
@@ -61,6 +64,29 @@ project/
 └── docs/
     └── index.md
 ```
+
+## *NEW* JSON Format
+
+Uses name: content pairs to represent the tree structure.
+
+```json
+{
+  "project": {
+    "README.md": "# Project\n\nThis is a project.",
+    "LICENSE": "MIT License",
+    "src": {
+      "__init__.py": "",
+      "main.py": "# Main module\n\nimport os\n\ndef main():\n    print('it works!')\n\nmain()"
+    },
+    "tests": {
+      "__init__.py": "",
+      "test_main.py": "# Test module\n\nimport os\n\ndef test():\n    assert True\n\ntest()"
+    },
+    "docs": {
+      "index.md": "# Documentation\n\nThis is the documentation."
+    }
+  }
+}
 
 - Directories end with `/`
 - Comments start with `#`
