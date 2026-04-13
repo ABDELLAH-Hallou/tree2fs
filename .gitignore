@@ -215,11 +215,5 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-### 19. `MANIFEST.in`
-```
-include README.md
-include LICENSE
-include pyproject.toml
-recursive-include tree2fs *.py
-recursive-include tests *.py
-recursive-include tests/fixtures *.txt
+# sh scripts
+scripts/*.sh

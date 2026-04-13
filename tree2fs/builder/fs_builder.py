@@ -13,17 +13,19 @@ class FilesystemBuilder:
     files and directories on the filesystem.
     """
     
-    def __init__(self, base_dir: Path, dry_run: bool = False, verbose: bool = False):
+    def __init__(self, base_dir: Path, dry_run: bool = False, verbose: bool = False, input_type: str = "txt"):
         """Initialize the filesystem builder.
         
         Args:
             base_dir: Base directory to create structure in
             dry_run: If True, don't actually create files/directories
             verbose: If True, print detailed information
+             input_type: Type of input file ('tree', 'json', 'yaml') - affects comment handling
         """
         self.base_dir = Path(base_dir)
         self.dry_run = dry_run
         self.verbose = verbose
+        self.input_type = input_type
         self.created_dirs: Set[str] = set()
         self.created_files: Set[str] = set()
     
@@ -49,17 +51,37 @@ class FilesystemBuilder:
         except OSError as e:
             raise FilesystemBuildError(f"Failed to create directory {path}: {e}")
     
-    def _create_file(self, path: Path, node: Node) -> None:
-        """Create a file.
+    def _format_content(self, comment: str) -> str:
+        """Format comment content based on input type.
         
         Args:
-            path: Full path to create
-            node: Node containing metadata
+            comment: Raw comment text
+            
+        Returns:
+            Formatted content to write to file
         """
+        if not comment:
+            return ""
+        
+        # For tree format: add # prefix to make it a proper comment
+        # For JSON/YAML: use content as-is
+        if self.input_type == "txt":
+            lines = comment.split('\n')
+            formatted_lines = [f"# {line}" if line.strip() else "#" for line in lines]
+            return '\n'.join(formatted_lines)
+        else:
+            return comment
+    
+    def _create_file(self, path: Path, node: Node) -> None:
+        """Create a file with content from node.data.comment."""
         try:
             if not self.dry_run:
                 path.parent.mkdir(parents=True, exist_ok=True)
-                path.touch(exist_ok=True)
+                content = self._format_content(node.data.comment)
+                # MODIFIED: Instead of path.touch(), we write the content
+                with open(path, 'w', encoding='utf-8') as f:
+                    if node.data.comment:
+                        f.write(content)
             
             self.created_files.add(str(path))
             
@@ -67,7 +89,10 @@ class FilesystemBuilder:
                 action = "[DRY RUN] Would create" if self.dry_run else "Created"
                 print(f"{action} file: {path}")
                 if node.data.comment:
-                    print(f"  → Comment: {node.data.comment}")
+                    # Show a preview of content in verbose mode
+                    formatted = self._format_content(node.data.comment)
+                    preview = (formatted[:30] + '..') if len(formatted) > 30 else formatted
+                    print(f"   → Content: {preview}")
         
         except OSError as e:
             raise FilesystemBuildError(f"Failed to create file {path}: {e}")
