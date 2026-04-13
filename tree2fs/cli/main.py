@@ -105,7 +105,8 @@ Tree file format:
         builder = FilesystemBuilder(
             base_path,
             dry_run=args.dry_run,
-            verbose=args.verbose
+            verbose=args.verbose,
+            input_type=args.format
         )
         
         builder.build(root, skip_root=should_skip_root)
