@@ -87,7 +87,7 @@ Uses name: content pairs to represent the tree structure.
     }
   }
 }
-
+```
 - Directories end with `/`
 - Comments start with `#`
 - Supports standard tree drawing characters: `│`, `├`, `└`, `─`
@@ -101,7 +101,7 @@ Uses name: content pairs to represent the tree structure.
 - ✅ Skip root directory option
 - ✅ Python 3.9+ support
 - ✅ Type hints throughout
-```
+
 ## Development
 ```bash
 # Clone repository
